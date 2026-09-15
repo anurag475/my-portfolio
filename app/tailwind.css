@@ -1,0 +1,15 @@
+/* Scoped Tailwind entry — utilities only, no Preflight.
+ *
+ * The rest of the site is a hand-written CSS design system (globals.css).
+ * Tailwind's Preflight reset (margins, headings, etc.) would fight that
+ * system across every page, so this file deliberately imports just the
+ * theme tokens + utility classes, not the full `tailwindcss` reset.
+ * Tailwind utility classes are then available anywhere in the app, but
+ * only for opt-in component styling (e.g. components/ui/3d-card.jsx and
+ * anything that uses it) — nothing here resets existing elements.
+ */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+@source "../app";
+@source "../components";
