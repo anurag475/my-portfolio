@@ -19,12 +19,21 @@
   --paper: #fafaf9;
   --white: #ffffff;
 
-  /* Brand accent */
-  --accent-600: #4338ca;
-  --accent-500: #4f46e5;
-  --accent-400: #6366f1;
-  --accent-100: #eef0ff;
-  --accent-glow: rgba(79, 70, 229, 0.35);
+  /* Brand accent — rich burgundy/wine (was an indigo-purple; every use
+     site-wide reads off these tokens, so this one change re-colors every
+     button/link/glow/gradient consistently).
+     --accent-400 is lighter than a "straight" 4-stop burgundy ramp would
+     give (#9c4155) specifically because it's the one shade in this scale
+     used as solid text color on dark backgrounds (.hero h1 .accent,
+     .hero-experience, .bleed-dark .eyebrow) — #9c4155 there measured
+     3.03:1, below WCAG AA's 4.5:1; #bd5e74 clears it at 4.61:1 (slightly
+     better than the original indigo's 4.32:1) while still reading as the
+     same family as accent-500/600. */
+  --accent-600: #5c2530;
+  --accent-500: #7a2e3d;
+  --accent-400: #bd5e74;
+  --accent-100: #f6e9eb;
+  --accent-glow: rgba(122, 46, 61, 0.35);
 
   /* Secondary accent (used sparingly — success / stats / highlights) */
   --teal-500: #0d9488;
@@ -60,7 +69,7 @@
   --shadow-sm: 0 1px 2px rgba(15, 20, 35, 0.06);
   --shadow-md: 0 8px 24px rgba(15, 20, 35, 0.08);
   --shadow-lg: 0 24px 60px rgba(15, 20, 35, 0.14);
-  --shadow-glow: 0 20px 60px rgba(79, 70, 229, 0.25);
+  --shadow-glow: 0 20px 60px rgba(122, 46, 61, 0.25);
 
   /* Space the fixed, floating nav pill (components/ui/resizable-navbar.jsx)
      needs — added as extra top padding on each page's first (hero-type)
@@ -196,6 +205,61 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
    before the visual appears, so this section doesn't need the full
    default section top padding on top of that. */
 .macbook-section { padding-top: 0; margin-top: clamp(-4rem, -6vw, -2.5rem); }
+@media (max-width: 768px) {
+  /* The scroll-driven lid-opening animation needs *some* scroll distance
+     to play out (scrollYProgress is measured across this element's own
+     height), but 200vh — two full phone screens of almost-blank scroll —
+     is sized for the desktop-scale visual. Below md (768px, the same
+     point components/ui/macbook-scroll.jsx itself switches from
+     scale-50 to its full scale-100), everything inside is already
+     shrunk to 35% via `transform: scale()`, which doesn't reduce the
+     *layout* height min-h-[200vh] reserves — so the section was mostly
+     empty scroll space on phones. Shortened here instead of in the
+     component: keeps desktop/tablet's 200vh (and its animation timing,
+     which is scroll-percentage-based, so it still plays end-to-end, just
+     over a shorter physical scroll) completely untouched. */
+  .macbook-scroll-root {
+    /* min-height (a floor), not height (a forced size) — deliberately.
+       An explicit `height` smaller than the content's natural stacked
+       size was tried here first: it does shrink the box, but flexbox
+       responds to that by *shrinking the children themselves* (title,
+       Lid, keyboard, trackpad all have flex-shrink:1 by default and no
+       flex-basis override) to cram into the smaller box — visibly
+       distorting the mockup's proportions instead of just repositioning
+       it (confirmed: with height:420px, every child's rendered bottom
+       edge landed exactly at 420px, i.e. compressed to fit, not merely
+       clipped/overflowing). min-height never forces children to
+       compress; it's only a floor the (larger, natural) content is free
+       to exceed, which is what's wanted — the content renders at its
+       intended size, just compactly *positioned* on the page.
+       70vh is that floor, but it doesn't actually bind — the ~726px-tall
+       natural content (title + the fixed-size Lid/base graphics) already
+       exceeds it, so the box's real layout height stays ~726px. That
+       matters because `useScroll` (framer-motion, in the component)
+       measures scroll progress against this element's *layout* height —
+       unaffected by the `transform: scale(0.35)` the component applies —
+       so with the box still ~726px, progress 0→1 was tracked across that
+       full distance while the 0.35 scale means only the first ~254px of
+       that scroll is ever visible on screen: the lid-opening reveal was
+       still barely starting by the time the visible mockup had already
+       scrolled away. That half of the fix lives in the component itself
+       (components/ui/macbook-scroll.jsx — isMobile-gated `useScroll`
+       offset, shortening the *tracked range* instead of the underlying
+       height; confirmed by instrumenting scrollYProgress directly). */
+    min-height: 70vh;
+    /* transform-origin:top keeps the content anchored to this box's top
+       edge instead of the default center, so there's no blank scroll
+       before the title appears either (center-origin scaling would
+       otherwise split the ~65% "extra" unscaled height evenly above and
+       below the visible mockup). */
+    transform-origin: top center;
+    /* At 0.35 scale, ~726px of unscaled content paints into only ~254px
+       of visual height, so ~472px below the mockup is genuinely empty —
+       this claws most of that back by pulling the next section up to sit
+       just under the visible mockup instead of the full 472px gap. */
+    margin-bottom: -400px;
+  }
+}
 
 .grid { display: grid; gap: 1.75rem; }
 .grid-2 { grid-template-columns: repeat(2, 1fr); }
@@ -284,7 +348,7 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
   display: block;
   position: relative;
   flex-shrink: 0;
-  box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.25), 0 2px 6px rgba(15, 20, 35, 0.15);
+  box-shadow: 0 0 0 2px rgba(122, 46, 61, 0.25), 0 2px 6px rgba(15, 20, 35, 0.15);
 }
 .brand-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -418,6 +482,285 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
   color: var(--accent-400);
 }
 
+/* ===================================================================
+   MOBILE HOMEPAGE REDESIGN — scoped to max-width: 768px ONLY
+   ===================================================================
+   A cinematic dark-navy reskin of the mobile nav + hero + a new
+   feature/trust/stats showcase, requested as a phone-only redesign with
+   desktop, and tablet (769–1023px), required to stay pixel-identical.
+
+   How the isolation works: every rule below either (a) lives inside the
+   `@media (max-width: 768px)` block, so it simply cannot match at any
+   wider viewport, or (b) is one of the two unscoped resets just below
+   (`.nav-logo-subtitle`, `.mobile-showcase`), which only ever set
+   `display: none` outside that block — inert everywhere until the media
+   query turns them on. No existing selector from elsewhere in this file
+   is redeclared or overridden here; every class this block touches
+   (`mobile-nav-*`, `nav-logo-*`, `grad-word`, `mobile-showcase`, `ms-*`,
+   `trust-strip`) is new and only appears on the elements added for this
+   redesign — see components/ui/resizable-navbar.jsx, SiteNav.jsx,
+   sections/Hero.jsx and sections/TrustSection.jsx for the matching
+   markup. Plain rules here (unlayered CSS) reliably win over the
+   Tailwind utility classes already on the nav elements — see the
+   cascade-layers note above the Reset block — so no `!important` is
+   needed anywhere in this section. */
+.nav-logo-subtitle { display: none; }
+.mobile-showcase { display: none; }
+.hero-badges { display: none; }
+
+@media (max-width: 768px) {
+  /* ---------- Nav: dark glass, premium ---------- */
+  .mobile-nav-shell {
+    background: linear-gradient(165deg, rgba(15, 20, 33, 0.88), rgba(10, 14, 23, 0.8));
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  }
+  .mobile-nav-header { gap: 0.65rem; }
+  .mobile-nav-shell .nav-logo-name { color: #fff; }
+  .mobile-nav-toggle { flex-shrink: 0; }
+  .nav-logo-subtitle {
+    /* No white-space:nowrap here: at 320px there isn't room for name +
+       "FREELANCE WEB DEVELOPER" + the hamburger on one line, and forcing
+       nowrap pushed/clipped the hamburger instead (flex item overflow —
+       same class of bug as the .ms-feature fix above). Wrapping to a
+       second line here costs a little nav height but keeps every element
+       intact and in view, so it's the safer trade at the narrowest width. */
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gray-400);
+    margin-top: 1px;
+  }
+  .mobile-nav-toggle {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-md);
+    padding: 0.55rem;
+  }
+  .mobile-nav-menu {
+    background: linear-gradient(165deg, rgba(16, 21, 35, 0.98), rgba(10, 14, 23, 0.99));
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  }
+  .mobile-nav-link { color: var(--gray-300); }
+  .mobile-nav-link[aria-current="page"] { color: #fff; }
+  .mobile-nav-cta { box-shadow: 0 10px 28px var(--accent-glow); }
+
+  /* ---------- Hero: cinematic full-bleed portrait ---------- */
+  .hero-bg {
+    height: clamp(380px, 62vh, 560px);
+  }
+  .hero-bg img { object-position: 28% 20%; }
+  .hero-bg::after {
+    /* Fades the photo's bottom edge into the section's own --ink-950
+       background, so the cut between "cinematic image" and "dark content
+       block below" reads as one continuous surface, not a hard seam. */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 14, 23, 0) 0%, rgba(10, 14, 23, 0.06) 45%, rgba(10, 14, 23, 0.6) 78%, var(--ink-950) 100%);
+  }
+  .hero-badges {
+    /* Floating trust badges down the right edge of the photo. Starts
+       below --nav-clearance (5.5rem) so the fixed nav pill never
+       overlaps them, and the portrait is framed left-of-center (see
+       .hero-bg img object-position above), so the right edge is mostly
+       open background — a natural, uncluttered spot for these. */
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    position: absolute;
+    z-index: 2;
+    top: calc(var(--nav-clearance) + 0.5rem);
+    right: 1rem;
+  }
+  .hero-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.15rem;
+    min-width: 76px;
+    padding: 0.55rem 0.65rem;
+    background: rgba(10, 14, 23, 0.55);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+  }
+  .hero-badge-icon {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    color: var(--accent-400);
+    margin-bottom: 0.1rem;
+  }
+  .hero-badge-icon svg { width: 14px; height: 14px; }
+  .hero-badge-num {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    line-height: 1.1;
+    color: #fff;
+  }
+  .hero-badge-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--gray-300);
+  }
+  .hero::before {
+    /* Redeclares the pseudo-element the 860px block above sets to
+       `display: none` — this narrower ≤768px query is the one range
+       where it's back on, as a very faint film-grain texture spanning
+       the whole section (photo + content) for a cinematic finish. The
+       769–860px tablet band keeps `display: none`, untouched. */
+    content: "";
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .hero-content { position: relative; }
+  .hero-content::before {
+    /* Soft ambient purple/blue glow, blurred, sitting behind the headline
+       — not over the photo above it, which has its own vignette. */
+    content: "";
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    width: 280px;
+    height: 240px;
+    transform: translateX(-50%);
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 72%);
+    filter: blur(36px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.05rem, 7.6vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .hero .grad-word {
+    background: linear-gradient(100deg, #c98a97 0%, var(--accent-400) 45%, var(--accent-600) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero-sub { font-size: 1rem; max-width: 36ch; }
+
+  /* Large, stacked, full-width pill CTAs — the primary gets the dominant
+     gradient + glow, the secondary stays a quieter glass outline. */
+  .hero .hero-actions { flex-direction: column; }
+  .hero .hero-actions .btn { width: 100%; }
+  .hero .hero-actions .btn-accent {
+    background: linear-gradient(135deg, var(--accent-400), var(--accent-600));
+    box-shadow: 0 14px 34px var(--accent-glow), 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+  }
+  .hero .hero-actions .btn-on-dark {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.16);
+  }
+
+  /* The old checkmark row + "1.5+ years" line are redundant with the new
+     feature grid/stats card below — dropped here only, to keep the mobile
+     hero to one clear hierarchy instead of restating the same claims
+     twice (the 769–860px tablet band still shows them, as before). */
+  .hero .trust-row,
+  .hero .hero-experience {
+    display: none;
+  }
+
+  /* ---------- Mobile showcase: features / trusted-by / stats ---------- */
+  .mobile-showcase {
+    display: block;
+    order: 6;
+    margin-top: 2.6rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ms-features {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.7rem;
+  }
+  .ms-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    /* min-width:0 on a grid item overrides its default min-width:auto,
+       which otherwise refuses to shrink below the label text's min-content
+       width (e.g. "Optimized" as one unbreakable run) and pushes the card
+       past its grid track. */
+    min-width: 0;
+    padding: 0.85rem 0.9rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--gray-300);
+    transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+  }
+  .ms-feature:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.07); }
+  .ms-feature-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent-glow);
+    color: var(--accent-400);
+    flex-shrink: 0;
+  }
+  .ms-feature-icon svg { width: 16px; height: 16px; }
+  .ms-feature span:last-child { min-width: 0; }
+
+  .ms-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 2.2rem;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .ms-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.3rem;
+    padding: 1.1rem 0.5rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .ms-stat:first-child { border-left: none; }
+  .ms-stat-value {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .ms-stat-label {
+    font-size: 0.68rem;
+    color: var(--gray-400);
+    line-height: 1.3;
+  }
+
+}
+
 /* Browser mockup visual */
 .mockup-stack {
   position: relative;
@@ -471,28 +814,47 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
 .mock-block {
   height: 90px;
   border-radius: var(--radius-sm);
-  background: linear-gradient(135deg, var(--accent-500), rgba(79,70,229,0.25));
+  background: linear-gradient(135deg, var(--accent-500), rgba(122,46,61,0.25));
 }
 .mock-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; margin-top: 0.3rem; }
 .mock-cards div { height: 46px; border-radius: 6px; background: rgba(255,255,255,0.08); }
 .mock-pill { width: 70px; height: 22px; border-radius: var(--radius-pill); background: var(--teal-500); }
 
 /* ---------- Logo / trust strip ---------- */
+/* An auto-sliding marquee: .logo-strip is the fixed frame (border, mask),
+   .logo-strip-track is the actual moving row, holding the wordmark list
+   twice back-to-back (see TrustSection.jsx — the second copy is
+   aria-hidden, a visual-only loop seam) so `translateX(-50%)` always lands
+   exactly on the start of an identical copy, for a seamless infinite loop
+   with no snap/jump. The mask-image fades both edges to transparent (the
+   "vanish at both ends" effect) independent of the track's own scroll
+   position. This is the one trust-logo marquee for every breakpoint —
+   TrustSection (and this rule) isn't hidden on mobile, so there's no
+   separate mobile copy to keep in sync. Reduced-motion users get a
+   static strip for free: the site's global `prefers-reduced-motion`
+   rule (above) already collapses every animation's duration to ~0. */
 .logo-strip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(1.6rem, 4vw, 3.2rem);
   margin-top: 2.5rem;
   padding-block: 1.75rem;
+  overflow: hidden;
   /* One step darker than --border (--gray-200): this strip sits directly
      under the "Trusted by..." eyebrow with little else to anchor it, so
      the default border reads as almost invisible. */
   border-top: 1px solid var(--gray-300);
   border-bottom: 1px solid var(--gray-300);
+  mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
 }
+.logo-strip-track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  gap: clamp(1.6rem, 4vw, 3.2rem);
+  animation: logo-marquee 30s linear infinite;
+}
+.logo-strip:hover .logo-strip-track { animation-play-state: paused; }
 .logo-strip .wordmark {
+  flex-shrink: 0;
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 1.15rem;
@@ -503,6 +865,9 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
   transition: opacity 0.25s var(--ease), filter 0.25s var(--ease), color 0.25s var(--ease);
 }
 .logo-strip .wordmark:hover { opacity: 1; filter: grayscale(0); color: var(--accent-600); }
+@keyframes logo-marquee {
+  to { transform: translateX(-50%); }
+}
 
 .trust-bar {
   display: grid;
@@ -1239,28 +1604,6 @@ footer {
 }
 .whatsapp-fab:hover { transform: scale(1.08); }
 .whatsapp-fab svg { width: 28px; height: 28px; }
-
-.mobile-sticky-bar {
-  display: none;
-  position: fixed;
-  left: 0; right: 0; bottom: 0;
-  z-index: 390;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: 0.7rem 0.9rem;
-  gap: 0.7rem;
-  box-shadow: 0 -8px 24px rgba(15,20,35,0.08);
-}
-@media (max-width: 720px) {
-  .mobile-sticky-bar { display: flex; }
-  .whatsapp-fab { bottom: 5.2rem; }
-  body { padding-bottom: 4.2rem; }
-}
-/* min-width:0 overrides the flex default (min-width:auto), which would
-   otherwise refuse to shrink these below their nowrap text's full width —
-   exactly the combination ("WhatsApp" + "Start a Project →" side by side)
-   that overflowed narrow phones (~375px and under). */
-.mobile-sticky-bar .btn { flex: 1; min-width: 0; padding: 0.75rem 0.9rem; font-size: 0.92rem; }
 
 /* ---------- Engagement modal ---------- */
 .engage-modal {

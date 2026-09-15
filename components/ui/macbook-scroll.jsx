@@ -15,7 +15,6 @@ import { cn } from "@/lib/utils";
 
 export function MacbookScroll({ src, showGradient, title, badge }) {
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
 
   const [isMobile, setIsMobile] = useState(false);
 
@@ -24,6 +23,33 @@ export function MacbookScroll({ src, showGradient, title, badge }) {
       setIsMobile(true);
     }
   }, []);
+
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    // Mobile-only ("end 45%" vs desktop's "end start"): `useScroll` tracks
+    // progress across `ref`'s own *layout* height — ~726–755px here,
+    // confirmed by instrumentation — regardless of the `transform:
+    // scale(...)` the outer div below is given (scale doesn't affect
+    // layout, only paint). That layout height deliberately stays large on
+    // mobile too (see .macbook-scroll-root, app/globals.css — using an
+    // explicit smaller `height` there instead visibly distorted the
+    // mockup, since flexbox shrinks unconstrained children to fit rather
+    // than just repositioning them), so it's *this* offset, not the
+    // height, that has to do the compressing: desktop reaches scale-100
+    // (no shrinking) at the md breakpoint, where layout height ≈ visual
+    // height and "end start" is correct; below md, at scale-50/scale-
+    // [0.35], that same ~726–755px unscaled height maps to only ~250–370px
+    // of actual on-screen pixels, so tracking the full unscaled height
+    // meant the lid was barely starting to open by the time the much-
+    // shorter visible content had already scrolled past the top of the
+    // screen. Ending the tracked range at 45% down the viewport instead of
+    // 0% roughly halves the scroll distance needed to reach progress 1, so
+    // the open/reveal plays out while the (scaled-down) mockup is still
+    // on screen — verified directly: rotateX reaches ~-8° (from -28°,
+    // i.e. ~75% open) after just 80px of scroll, with ~68% of the visible
+    // mockup still on screen at that point.
+    offset: isMobile ? ["start start", "end 45%"] : ["start start", "end start"],
+  });
 
   const scaleX = useTransform(scrollYProgress, [0, 0.3], [1.2, isMobile ? 1 : 1.5]);
   const scaleY = useTransform(scrollYProgress, [0, 0.3], [0.6, isMobile ? 1 : 1.5]);
@@ -35,7 +61,11 @@ export function MacbookScroll({ src, showGradient, title, badge }) {
   return (
     <div
       ref={ref}
-      className="flex min-h-[200vh] shrink-0 transform scale-[0.35] flex-col items-center justify-start py-0 [perspective:800px] sm:scale-50 md:scale-100 md:py-12"
+      // `macbook-scroll-root` is a plain hook: app/globals.css shrinks
+      // min-height on it at ≤768px only (see that rule for why) — inert
+      // above that width, so desktop/tablet keep the full 200vh scroll
+      // track and animation untouched.
+      className="macbook-scroll-root flex min-h-[200vh] shrink-0 transform scale-[0.35] flex-col items-center justify-start py-0 [perspective:800px] sm:scale-50 md:scale-100 md:py-12"
     >
       <motion.h2
         style={{ translateY: textTransform, opacity: textOpacity }}

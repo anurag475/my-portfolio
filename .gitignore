@@ -4,6 +4,7 @@
 # next.js build output
 /.next/
 /out/
+/.build-check/
 
 # misc
 .DS_Store

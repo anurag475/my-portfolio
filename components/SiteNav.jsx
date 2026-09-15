@@ -52,7 +52,7 @@ export default function SiteNav() {
       {/* Mobile */}
       <MobileNav>
         <MobileNavHeader>
-          <NavbarLogo avatar={<Avatar size={30} />} name={SITE.name} />
+          <NavbarLogo avatar={<Avatar size={30} />} name={SITE.name} subtitle={SITE.tagline} />
           <MobileNavToggle isOpen={menuOpen} onClick={() => setMenuOpen((v) => !v)} />
         </MobileNavHeader>
 
@@ -63,13 +63,13 @@ export default function SiteNav() {
               href={item.link}
               onClick={() => setMenuOpen(false)}
               aria-current={item.link === activeHref ? "page" : undefined}
-              className="relative w-full text-base font-medium text-neutral-700 aria-[current=page]:font-semibold aria-[current=page]:text-neutral-900"
+              className="mobile-nav-link relative w-full text-base font-medium text-neutral-700 aria-[current=page]:font-semibold aria-[current=page]:text-neutral-900"
             >
               {item.name}
             </a>
           ))}
           <div className="flex w-full flex-col gap-3 pt-2">
-            <NavbarButton href="/#contact" variant="primary" className="w-full" onClick={() => setMenuOpen(false)}>
+            <NavbarButton href="/#contact" variant="primary" className="mobile-nav-cta w-full" onClick={() => setMenuOpen(false)}>
               Start a Project →
             </NavbarButton>
           </div>

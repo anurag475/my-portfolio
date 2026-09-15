@@ -3,7 +3,6 @@ import "./globals.css";
 import "./tailwind.css";
 import SiteNav from "@/components/SiteNav";
 import WhatsAppFab from "@/components/WhatsAppFab";
-import MobileStickyBar from "@/components/MobileStickyBar";
 import EngagementModal from "@/components/EngagementModal";
 import { SITE } from "@/lib/site";
 
@@ -63,7 +62,6 @@ export default function RootLayout({ children }) {
         <SiteNav />
         <main id="main">{children}</main>
         <WhatsAppFab />
-        <MobileStickyBar />
         <EngagementModal />
       </body>
     </html>
