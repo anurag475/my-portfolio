@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { Check, DynamicIcon } from "../Icons";
-import { heroYearsBadge, heroDoodleWords } from "@/lib/content";
+import { heroDoodleWords } from "@/lib/content";
 import { SITE } from "@/lib/site";
 
 const TRUST_ITEMS = ["Responsive Design", "SEO Ready", "Fast Performance", "Mobile First"];
@@ -30,16 +30,6 @@ export default function Hero() {
           <svg className="hero-signature-swash" viewBox="0 0 90 14" aria-hidden="true">
             <path d="M2 8c14-9 28-9 40-3s34 4 46-6" />
           </svg>
-        </div>
-
-        <div className="hero-years-badge">
-          <DynamicIcon name="Sparkle" className="hero-years-sparkle" />
-          <span className="hero-years-value">{heroYearsBadge.value}</span>
-          <span className="hero-years-label">
-            {heroYearsBadge.lines.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
-          </span>
         </div>
 
         <div className="hero-doodle">
