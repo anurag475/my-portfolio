@@ -1,6 +1,6 @@
 import Reveal from "../Reveal";
 import { DynamicIcon } from "../Icons";
-import { trustLogos, stats } from "@/lib/content";
+import { trustLogos, stats, heroTrustPills } from "@/lib/content";
 
 export default function TrustSection() {
   // `trust-strip` is currently just a plain hook (no rule in
@@ -11,6 +11,16 @@ export default function TrustSection() {
   return (
     <section className="section-tight trust-strip" aria-labelledby="trust-heading">
       <div className="container text-center">
+        {/* Mobile-only (≤768px) pill row, moved out of the hero so it sits
+            directly under it, above the "Trusted by" heading. */}
+        <div className="hero-trust-pills">
+          {heroTrustPills.map((item) => (
+            <span key={item.label}>
+              <DynamicIcon name={item.icon} />
+              {item.label}
+            </span>
+          ))}
+        </div>
         <p className="eyebrow" style={{ justifyContent: "center" }} id="trust-heading">
           Trusted by businesses, startups &amp; organizations
         </p>

@@ -310,6 +310,42 @@ export function Terminal(props) {
   );
 }
 
+export function Shield(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...strokeProps} strokeWidth={1.8} aria-hidden="true" {...props}>
+      <path d="M12 2 4 5v6c0 5 3.4 8.9 8 11 4.6-2.1 8-6 8-11V5l-8-3z" />
+    </svg>
+  );
+}
+
+export function Users(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...strokeProps} strokeWidth={1.8} aria-hidden="true" {...props}>
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+export function Play(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M7 4.5v15l13-7.5z" />
+    </svg>
+  );
+}
+
+export function Sparkle(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 2c.6 3.6 2.4 5.4 6 6-3.6.6-5.4 2.4-6 6-.6-3.6-2.4-5.4-6-6 3.6-.6 5.4-2.4 6-6z" />
+      <path d="M19 15c.3 1.8 1.2 2.7 3 3-1.8.3-2.7 1.2-3 3-.3-1.8-1.2-2.7-3-3 1.8-.3 2.7-1.2 3-3z" />
+    </svg>
+  );
+}
+
 export function GitHub(props) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
@@ -342,6 +378,10 @@ const ICONS = {
   LinkedIn,
   GitHub,
   Instagram,
+  Shield,
+  Users,
+  Play,
+  Sparkle,
 };
 
 /** Look up an icon component by name (used when the name comes from data,

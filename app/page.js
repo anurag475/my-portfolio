@@ -45,7 +45,7 @@ function StructuredData() {
         "@type": "Person",
         "@id": `${SITE.url}/#person`,
         name: SITE.name,
-        jobTitle: "Freelance Web Developer",
+        jobTitle: "Freelance Software Developer",
         url: `${SITE.url}/`,
         email: SITE.email,
         worksFor: { "@id": `${SITE.url}/#business` },

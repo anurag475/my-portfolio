@@ -12,7 +12,7 @@ export default function AboutSection() {
           <Reveal className="about-photo">
             <Image
               src="/about/anurag-dutta.jpg"
-              alt={`${SITE.name}, freelance web developer`}
+              alt={`${SITE.name}, freelance software developer`}
               fill
               sizes="(max-width: 860px) 90vw, 40vw"
             />
@@ -20,7 +20,7 @@ export default function AboutSection() {
           <Reveal className="about-copy">
             <p className="eyebrow">About</p>
             <h2>The developer behind the websites.</h2>
-            <p>I&rsquo;m Anurag, a freelance web developer who builds websites for businesses that want to look as credible online as they are in person.</p>
+            <p>I&rsquo;m Anurag, a freelance software developer who builds websites for businesses that want to look as credible online as they are in person.</p>
             <p>
               My work sits at the intersection of web development, UI/UX design and business strategy — I don&rsquo;t just write
               code, I think about how a website earns trust, guides a visitor&rsquo;s attention, and turns that attention into an

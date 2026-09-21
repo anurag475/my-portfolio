@@ -53,6 +53,7 @@
      tags or CDN requests needed. */
   --font-display: var(--font-fraunces), "Iowan Old Style", Georgia, serif;
   --font-body: var(--font-inter), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-hand: var(--font-caveat), cursive;
 
   /* Layout */
   --container: 1200px;
@@ -485,28 +486,39 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
 /* ===================================================================
    MOBILE HOMEPAGE REDESIGN — scoped to max-width: 768px ONLY
    ===================================================================
-   A cinematic dark-navy reskin of the mobile nav + hero + a new
-   feature/trust/stats showcase, requested as a phone-only redesign with
-   desktop, and tablet (769–1023px), required to stay pixel-identical.
+   A cinematic dark-navy reskin of the mobile nav + hero, requested as a
+   phone-only redesign with desktop, and tablet (769–1023px), required to
+   stay pixel-identical.
 
    How the isolation works: every rule below either (a) lives inside the
    `@media (max-width: 768px)` block, so it simply cannot match at any
-   wider viewport, or (b) is one of the two unscoped resets just below
-   (`.nav-logo-subtitle`, `.mobile-showcase`), which only ever set
-   `display: none` outside that block — inert everywhere until the media
-   query turns them on. No existing selector from elsewhere in this file
-   is redeclared or overridden here; every class this block touches
-   (`mobile-nav-*`, `nav-logo-*`, `grad-word`, `mobile-showcase`, `ms-*`,
-   `trust-strip`) is new and only appears on the elements added for this
-   redesign — see components/ui/resizable-navbar.jsx, SiteNav.jsx,
-   sections/Hero.jsx and sections/TrustSection.jsx for the matching
-   markup. Plain rules here (unlayered CSS) reliably win over the
-   Tailwind utility classes already on the nav elements — see the
-   cascade-layers note above the Reset block — so no `!important` is
-   needed anywhere in this section. */
+   wider viewport, or (b) is one of the unscoped resets just below
+   (`.nav-logo-subtitle`, `.hero-mobile-badge` and the other mobile-only
+   hero callouts), which only ever set `display: none` outside that block
+   — inert everywhere until the media query turns them on. No existing
+   selector from elsewhere in this file is redeclared or overridden here;
+   every class this block touches (`mobile-nav-*`, `nav-logo-*`,
+   `grad-word`, `hero-mobile-*`, `hero-heading-*`, `hero-sub-*`,
+   `hero-actions-*`, `hero-trust-pills`, `hero-signature`,
+   `hero-years-*`, `hero-doodle*`, `hero-quote*`, `trust-strip`) is new
+   and only appears on the elements added for this redesign — see
+   components/ui/resizable-navbar.jsx, SiteNav.jsx, sections/Hero.jsx and
+   sections/TrustSection.jsx for the matching markup. Plain rules here
+   (unlayered CSS) reliably win over the Tailwind utility classes already
+   on the nav elements — see the cascade-layers note above the Reset
+   block — so no `!important` is needed anywhere in this section. */
 .nav-logo-subtitle { display: none; }
-.mobile-showcase { display: none; }
-.hero-badges { display: none; }
+.hero-mobile-badge,
+.hero-heading-mobile,
+.hero-sub-mobile,
+.hero-actions-mobile,
+.hero-trust-pills,
+.hero-signature,
+.hero-years-badge,
+.hero-doodle,
+.hero-quote {
+  display: none;
+}
 
 @media (max-width: 768px) {
   /* ---------- Nav: dark glass, premium ---------- */
@@ -521,9 +533,8 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
   .nav-logo-subtitle {
     /* No white-space:nowrap here: at 320px there isn't room for name +
        "FREELANCE WEB DEVELOPER" + the hamburger on one line, and forcing
-       nowrap pushed/clipped the hamburger instead (flex item overflow —
-       same class of bug as the .ms-feature fix above). Wrapping to a
-       second line here costs a little nav height but keeps every element
+       nowrap pushed/clipped the hamburger instead (a flex item overflow
+       bug). Wrapping to a second line here costs a little nav height but keeps every element
        intact and in view, so it's the safer trade at the narrowest width. */
     display: block;
     font-size: 0.6rem;
@@ -549,77 +560,54 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
   .mobile-nav-link[aria-current="page"] { color: #fff; }
   .mobile-nav-cta { box-shadow: 0 10px 28px var(--accent-glow); }
 
-  /* ---------- Hero: cinematic full-bleed portrait ---------- */
-  .hero-bg {
-    height: clamp(380px, 62vh, 560px);
+  /* ---------- Hero: full-bleed photo, text column capped to ~64% ---------- */
+  /* The portrait goes back to being a full-bleed absolutely-positioned
+     background spanning the whole section — matching the reference — but
+     the actual bug the earlier full-bleed pass had wasn't the photo's
+     positioning, it was that `.hero-content` (badge/heading/CTAs/
+     trust-pills) was left full-width, so it physically shared the same
+     horizontal space as the callouts anchored to the photo's right edge.
+     Capping `.hero-content` to a fraction of the section's width reserves
+     a right-hand strip that only the callouts live in — the two groups
+     can no longer occupy the same pixels, at any content height. */
+  .hero {
+    position: relative;
+    display: block;
+    min-height: auto;
+    padding-top: var(--nav-clearance);
+    padding-bottom: 2.2rem;
   }
-  .hero-bg img { object-position: 28% 20%; }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    height: auto;
+  }
+  /* The source photo (public/hero/hero-portrait.webp) is a wide 1536×1024
+     landscape frame with the subject in its LEFT third and open
+     background on the right. Against this section's tall, narrow box,
+     cover-fit scales to match the box's height and crops width, so a LOW
+     x% keeps the face+torso in frame (a HIGH x% crops straight to the
+     empty background). Same reasoning the desktop hero (22% 30%) and the
+     old ≤860px tablet band (32% 22%) already used. */
+  .hero-bg img { object-position: 7% 16%; }
   .hero-bg::after {
-    /* Fades the photo's bottom edge into the section's own --ink-950
-       background, so the cut between "cinematic image" and "dark content
-       block below" reads as one continuous surface, not a hard seam. */
+    /* Left-to-right scrim so the text column reads clearly over the
+       photo, plus a bottom fade into the section's own --ink-950
+       background so the cut into whatever follows the hero reads as one
+       continuous surface. */
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(10, 14, 23, 0) 0%, rgba(10, 14, 23, 0.06) 45%, rgba(10, 14, 23, 0.6) 78%, var(--ink-950) 100%);
-  }
-  .hero-badges {
-    /* Floating trust badges down the right edge of the photo. Starts
-       below --nav-clearance (5.5rem) so the fixed nav pill never
-       overlaps them, and the portrait is framed left-of-center (see
-       .hero-bg img object-position above), so the right edge is mostly
-       open background — a natural, uncluttered spot for these. */
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    position: absolute;
-    z-index: 2;
-    top: calc(var(--nav-clearance) + 0.5rem);
-    right: 1rem;
-  }
-  .hero-badge {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 0.15rem;
-    min-width: 76px;
-    padding: 0.55rem 0.65rem;
-    background: rgba(10, 14, 23, 0.55);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: var(--radius-md);
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
-  }
-  .hero-badge-icon {
-    display: grid;
-    place-items: center;
-    width: 20px;
-    height: 20px;
-    color: var(--accent-400);
-    margin-bottom: 0.1rem;
-  }
-  .hero-badge-icon svg { width: 14px; height: 14px; }
-  .hero-badge-num {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 1rem;
-    line-height: 1.1;
-    color: #fff;
-  }
-  .hero-badge-label {
-    font-size: 0.6rem;
-    font-weight: 600;
-    line-height: 1.2;
-    color: var(--gray-300);
+    background:
+      linear-gradient(100deg, rgba(10, 14, 23, 0.93) 0%, rgba(10, 14, 23, 0.78) 38%, rgba(10, 14, 23, 0.3) 60%, rgba(10, 14, 23, 0.08) 100%),
+      linear-gradient(0deg, var(--ink-950) 0%, rgba(10, 14, 23, 0.4) 14%, rgba(10, 14, 23, 0) 30%);
   }
   .hero::before {
     /* Redeclares the pseudo-element the 860px block above sets to
        `display: none` — this narrower ≤768px query is the one range
        where it's back on, as a very faint film-grain texture spanning
-       the whole section (photo + content) for a cinematic finish. The
-       769–860px tablet band keeps `display: none`, untouched. */
+       the whole section for a cinematic finish. The 769–860px tablet band
+       keeps `display: none`, untouched. */
     content: "";
     display: block;
     position: absolute;
@@ -630,26 +618,189 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
     mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
-  .hero-content { position: relative; }
-  .hero-content::before {
-    /* Soft ambient purple/blue glow, blurred, sitting behind the headline
-       — not over the photo above it, which has its own vignette. */
-    content: "";
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    width: 280px;
-    height: 240px;
-    transform: translateX(-50%);
-    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 72%);
-    filter: blur(36px);
-    z-index: -1;
-    pointer-events: none;
+  .hero-grid { padding-top: 1.6rem; }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 64%;
   }
 
-  .hero h1 {
-    font-size: clamp(2.05rem, 7.6vw, 2.5rem);
+  /* ---------- "Freelance Web Developer" badge pill (in-flow, column top) ---------- */
+  .hero-mobile-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem 0.5rem 0.7rem;
+    background: rgba(10, 14, 23, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: var(--radius-pill);
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--gray-200);
+    margin-bottom: 1.3rem;
+  }
+  .hero-mobile-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-400);
+    flex-shrink: 0;
+  }
+
+  /* ---------- Signature / years badge / doodle / quote ----------
+     Confined to the reserved right-hand strip outside `.hero-content`'s
+     64% column — `right` keeps them pinned to that strip regardless of
+     viewport width, and `top`/`bottom` are percentages of the full
+     section height (which grows with the column's wrapped text, since
+     the column is narrower here than the old two-column reference), so
+     they spread out rather than bunch up on a tall render. Purely
+     decorative, so `pointer-events: none` keeps them from ever
+     intercepting a tap meant for the content column or the photo. */
+  .hero-signature {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    top: calc(var(--nav-clearance) + 0.6rem);
+    right: 1rem;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 1.35rem;
     line-height: 1.1;
+    color: #fff;
+    text-align: left;
+  }
+  .hero-signature-swash {
+    width: 60px;
+    height: 11px;
+    margin-top: 2px;
+    stroke: var(--accent-400);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .hero-years-badge {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 0.5rem;
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    bottom: 1.25rem;
+    right: 0.9rem;
+    padding: 0.6rem 0.75rem;
+    background: rgba(10, 14, 23, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.3);
+  }
+  .hero-years-sparkle {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    color: var(--accent-400);
+    width: 12px;
+    height: 12px;
+  }
+  .hero-years-value {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+  .hero-years-label {
+    grid-column: 2;
+    grid-row: 2;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.6rem;
+    font-weight: 600;
+    color: var(--gray-300);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .hero-doodle {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    top: 46%;
+    right: 1.1rem;
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--amber-500);
+    line-height: 1.4;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .hero-doodle-arrow {
+    width: 16px;
+    height: 18px;
+    margin-bottom: 0.2rem;
+    stroke: var(--amber-500);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .hero-quote {
+    position: absolute;
+    z-index: 2;
+    pointer-events: none;
+    bottom: 6rem;
+    right: 0.9rem;
+    max-width: 33%;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 0.95rem;
+    line-height: 1.25;
+    color: #fff;
+    text-align: left;
+  }
+  .hero-quote-swash {
+    display: block;
+    width: 85%;
+    height: 9px;
+    margin-top: 2px;
+    stroke: var(--accent-400);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  /* ---------- Headline / subtext: mobile swaps in its own copy ---------- */
+  .hero-heading-desktop,
+  .hero-sub-desktop,
+  .hero-actions-desktop {
+    display: none;
+  }
+  .hero-heading-mobile,
+  .hero-sub-mobile {
+    display: block;
+  }
+  .hero h1 {
+    font-size: clamp(1.7rem, 9vw, 2.5rem);
+    line-height: 1.12;
     letter-spacing: -0.02em;
   }
   .hero .grad-word {
@@ -658,107 +809,92 @@ section { padding: clamp(4rem, 8vw, 7.5rem) 0; }
     background-clip: text;
     color: transparent;
   }
-  .hero-sub { font-size: 1rem; max-width: 36ch; }
-
-  /* Large, stacked, full-width pill CTAs — the primary gets the dominant
-     gradient + glow, the secondary stays a quieter glass outline. */
-  .hero .hero-actions { flex-direction: column; }
-  .hero .hero-actions .btn { width: 100%; }
-  .hero .hero-actions .btn-accent {
-    background: linear-gradient(135deg, var(--accent-400), var(--accent-600));
-    box-shadow: 0 14px 34px var(--accent-glow), 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+  .grad-word-italic {
+    font-style: italic;
+    background: linear-gradient(100deg, #f0a8bb 0%, var(--accent-400) 55%, var(--accent-600) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
-  .hero .hero-actions .btn-on-dark {
+  .hero-sub { font-size: 0.94rem; max-width: none; }
+
+  /* Stacked, column-width pill CTAs — the column itself is capped to 64%
+     of the section, so there isn't room to run these side by side (as
+     the reference does at its much wider viewport) without wrapping
+     mid-label. The primary gets the light gradient (dark text, since it's
+     a light background) and a glow; the secondary stays a quieter glass
+     outline with a circular play icon. */
+  .hero-actions-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-top: 1.6rem;
+  }
+  .hero-actions-mobile .btn {
+    width: 100%;
+    padding: 0.85rem 1.3rem;
+    font-size: 0.92rem;
+  }
+  .hero-actions-mobile .btn-accent {
+    background: linear-gradient(135deg, #ffc4d6, var(--accent-400));
+    color: var(--ink-950);
+    box-shadow: 0 14px 34px var(--accent-glow), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+  }
+  .hero-actions-mobile .btn-on-dark {
     background: rgba(255, 255, 255, 0.06);
     border-color: rgba(255, 255, 255, 0.16);
   }
+  .btn-play-icon {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
+  }
+  .btn-play-icon svg { width: 9px; height: 9px; }
 
-  /* The old checkmark row + "1.5+ years" line are redundant with the new
-     feature grid/stats card below — dropped here only, to keep the mobile
-     hero to one clear hierarchy instead of restating the same claims
-     twice (the 769–860px tablet band still shows them, as before). */
+  /* The old checkmark row + "1.5+ years" line are redundant with the
+     badge pill + trust-pill row this composition uses instead — dropped
+     here only (the 769–860px tablet band still shows them, as before). */
   .hero .trust-row,
   .hero .hero-experience {
     display: none;
   }
 
-  /* ---------- Mobile showcase: features / trusted-by / stats ---------- */
-  .mobile-showcase {
-    display: block;
-    order: 6;
-    margin-top: 2.6rem;
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
-  .ms-features {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.7rem;
-  }
-  .ms-feature {
+  /* Lives in TrustSection, directly below the hero: one slim dark bar,
+     three items side by side split by hairline dividers. */
+  .hero-trust-pills {
     display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    /* min-width:0 on a grid item overrides its default min-width:auto,
-       which otherwise refuses to shrink below the label text's min-content
-       width (e.g. "Optimized" as one unbreakable run) and pushes the card
-       past its grid track. */
-    min-width: 0;
-    padding: 0.85rem 0.9rem;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    align-items: stretch;
+    margin-bottom: 1.4rem;
+    background: linear-gradient(160deg, var(--ink-700) 0%, var(--ink-900) 60%, var(--accent-600) 140%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: var(--radius-md);
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--gray-300);
-    transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+    box-shadow: 0 8px 20px rgba(13, 18, 32, 0.25);
   }
-  .ms-feature:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.07); }
-  .ms-feature-icon {
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--accent-glow);
-    color: var(--accent-400);
-    flex-shrink: 0;
-  }
-  .ms-feature-icon svg { width: 16px; height: 16px; }
-  .ms-feature span:last-child { min-width: 0; }
-
-  .ms-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    margin-top: 2.2rem;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-  }
-  .ms-stat {
+  .hero-trust-pills span {
+    flex: 1 1 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: 0.3rem;
-    padding: 1.1rem 0.5rem;
-    border-left: 1px solid rgba(255, 255, 255, 0.08);
-  }
-  .ms-stat:first-child { border-left: none; }
-  .ms-stat-value {
-    font-family: var(--font-display);
-    font-size: 1.2rem;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    padding: 0.7rem 0.4rem;
+    font-size: 0.62rem;
     font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
     color: #fff;
   }
-  .ms-stat-label {
-    font-size: 0.68rem;
-    color: var(--gray-400);
-    line-height: 1.3;
+  .hero-trust-pills span + span { border-left: 1px solid rgba(255, 255, 255, 0.12); }
+  .hero-trust-pills svg {
+    width: 16px;
+    height: 16px;
+    color: var(--accent-400);
+    flex-shrink: 0;
   }
-
 }
 
 /* Browser mockup visual */
