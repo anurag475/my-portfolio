@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import ServiceTemplate from "@/components/ServiceTemplate";
-import FooterSimple from "@/components/FooterSimple";
+import Footer from "@/components/Footer";
 import { services, getService } from "@/lib/services";
 import { SITE } from "@/lib/site";
 
@@ -33,7 +33,7 @@ function StructuredData({ service }) {
       {
         "@type": "Service",
         serviceType: service.title,
-        provider: { "@type": "ProfessionalService", name: `${SITE.name} — Web Developer`, url: `${SITE.url}/` },
+        provider: { "@type": "ProfessionalService", name: `${SITE.name} — Software Development`, url: `${SITE.url}/` },
         areaServed: { "@type": "Country", name: "India" },
         description: service.cardDescription,
         url: `${SITE.url}/services/${service.slug}`,
@@ -60,7 +60,7 @@ export default async function ServicePage({ params }) {
     <>
       <StructuredData service={service} />
       <ServiceTemplate service={service} />
-      <FooterSimple />
+      <Footer />
     </>
   );
 }

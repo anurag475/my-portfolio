@@ -1,121 +1,120 @@
 import Link from "next/link";
-import Reveal from "./Reveal";
-import FAQList from "./FAQList";
-import BrowserMockup from "./BrowserMockup";
-import { Check, ArrowRight } from "./Icons";
+import { Check, ArrowRight, Plus, DynamicIcon } from "./Icons";
 import { getRelatedServices } from "@/lib/services";
 import { whatsappUrl } from "@/lib/site";
 
-export default function ServiceTemplate({ service }) {
-  const related = getRelatedServices(service.slug);
-  const primaryCta = service.heroPrimaryCta || { label: "Get Started →", href: "/#contact" };
-  const secondaryCta =
-    service.heroSecondaryCta || (service.exampleHref ? { label: "See an Example", href: service.exampleHref } : { label: "See Examples", href: "/#work" });
-  const priceCtaLabel = service.priceCtaLabel || "Get a Custom Quote →";
-  const priceCtaHref = service.priceCtaHref || "/#contact";
+// Labels in lib/services.js were written with a trailing "→"; the new
+// buttons draw their own arrow icon.
+const clean = (label) => label.replace(/\s*→\s*$/, "");
+
+export default function ServiceTemplate({ service: s }) {
+  const related = getRelatedServices(s.slug).slice(0, 6);
+  const primary = s.heroPrimaryCta || { label: "Start a Project", href: "/#contact" };
+  const secondary =
+    s.heroSecondaryCta || (s.exampleHref ? { label: "See an Example", href: s.exampleHref } : { label: "See My Work", href: "/#work" });
 
   return (
-    <>
-      <section className="service-hero">
+    <article className="svc">
+      <header className="cs-hero">
         <div className="container">
+          <nav className="breadcrumb" aria-label="Breadcrumb">
+            <Link href="/">Home</Link>
+            <span aria-hidden="true">/</span>
+            <Link href="/#services">Services</Link>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">{s.title}</span>
+          </nav>
+          <div className="cs-hero-grid">
+            <div>
+              <p className="eyebrow">
+                <DynamicIcon name={s.icon} className="eyebrow-icon" /> {s.title}
+              </p>
+              <h1 className="svc-title">{s.h1}</h1>
+            </div>
+            <div className="cs-intro">
+              <p>{s.heroDescription}</p>
+              <div className="cs-links">
+                <Link href={primary.href} className="btn btn-dark" data-magnetic>
+                  {clean(primary.label)} <ArrowRight />
+                </Link>
+                <Link href={secondary.href} className="btn btn-outline">
+                  {clean(secondary.label)}
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="container cs-chapters">
+        <section className="chapter" data-reveal>
+          <div className="chapter-label">
+            <span>01</span>
+            <h2>What&rsquo;s included</h2>
+          </div>
+          <div className="chapter-body">
+            <h3>{s.includedHeading}</h3>
+            <ul className="included">
+              {s.included.map((item) => (
+                <li key={item}>
+                  <Check /> {item}
+                </li>
+              ))}
+            </ul>
+            {s.priceNote && (
+              <p className="price-note">
+                <strong>Typical investment</strong> {s.priceNote}.
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="chapter" data-reveal>
+          <div className="chapter-label">
+            <span>02</span>
+            <h2>Questions</h2>
+          </div>
+          <div className="chapter-body faq">
+            {s.faqs.map((f) => (
+              <details key={f.q}>
+                <summary>
+                  {f.q}
+                  <Plus />
+                </summary>
+                <p>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <section className="cs-cta">
+        <div className="container cs-cta-inner" data-reveal>
           <div>
-            <nav className="breadcrumb" aria-label="Breadcrumb">
-              <Link href="/">Home</Link>
-              <span>/</span>
-              <Link href="/#services">Services</Link>
-              <span>/</span>
-              <span aria-current="page">{service.title}</span>
-            </nav>
-            <p className="eyebrow">{service.title}</p>
-            <h1>{service.h1}</h1>
-            <p className="hero-sub" style={{ color: "var(--text-muted)" }}>
-              {service.heroDescription}
-            </p>
-            <div className="hero-actions">
-              <CtaLink cta={primaryCta} className="btn btn-accent btn-lg" />
-              <CtaLink cta={secondaryCta} className="btn btn-ghost btn-lg" />
-            </div>
+            <h2>{s.finalCtaHeading}</h2>
+            <p>{s.finalCtaBody}</p>
           </div>
-          <div aria-hidden="true">
-            <BrowserMockup blocks={service.mockup} style={{ background: "var(--ink-900)" }} />
-          </div>
-        </div>
-      </section>
-
-      <section>
-        <div className="container">
-          <Reveal className="section-head">
-            <p className="eyebrow">What&rsquo;s Included</p>
-            <h2>{service.includedHeading}</h2>
-          </Reveal>
-          <Reveal as="ul" className="included-list">
-            {service.included.map((item) => (
-              <li key={item}>
-                <Check strokeWidth={2.4} /> {item}
-              </li>
-            ))}
-          </Reveal>
-          <Reveal as="div" className="card" style={{ background: "var(--gray-100)", border: "none" }}>
-            <p style={{ marginBottom: "1rem" }}>
-              <strong>Typical investment:</strong> {service.priceNote} — see full{" "}
-              <Link href="/#pricing" style={{ color: "var(--accent-600)", fontWeight: 600 }}>
-                pricing details
-              </Link>
-              .
-            </p>
-            <Link href={priceCtaHref} className="btn btn-primary">
-              {priceCtaLabel}
+          <div className="cs-links">
+            <Link href={(s.finalCtaPrimary || primary).href} className="btn btn-gold btn-lg" data-magnetic>
+              {clean((s.finalCtaPrimary || { label: "Start a Project" }).label)} <ArrowRight />
             </Link>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="bleed-soft">
-        <div className="container">
-          <Reveal className="section-head center">
-            <h2>Common questions</h2>
-          </Reveal>
-          <Reveal>
-            <FAQList items={service.faqs} />
-          </Reveal>
-        </div>
-      </section>
-
-      <section>
-        <div className="container">
-          <Reveal className="final-cta">
-            <h2>{service.finalCtaHeading}</h2>
-            <p className="lede">{service.finalCtaBody}</p>
-            <div className="hero-actions">
-              <CtaLink cta={service.finalCtaPrimary || { label: "Start a Project →", href: "/#contact" }} className="btn btn-accent btn-lg" />
-              <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" className="btn btn-on-dark btn-lg">
-                Chat on WhatsApp →
-              </a>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      <section className="section-tight">
-        <div className="container">
-          <p className="eyebrow">Related Services</p>
-          <div className="related-services">
-            {related.map((s) => (
-              <Link href={`/services/${s.slug}`} key={s.slug}>
-                {s.title}
-              </Link>
-            ))}
+            <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-light btn-lg">
+              Chat on WhatsApp
+            </a>
           </div>
         </div>
       </section>
-    </>
-  );
-}
 
-function CtaLink({ cta, className }) {
-  return (
-    <Link href={cta.href} className={className}>
-      {cta.label}
-    </Link>
+      <nav className="container related" aria-label="Related services">
+        <p className="eyebrow">Related services</p>
+        <ul>
+          {related.map((r) => (
+            <li key={r.slug}>
+              <Link href={`/services/${r.slug}`}>{r.title}</Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </article>
   );
 }

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import CaseStudyTemplate from "@/components/CaseStudyTemplate";
-import FooterSimple from "@/components/FooterSimple";
+import Footer from "@/components/Footer";
 import { caseStudies, getCaseStudy } from "@/lib/caseStudies";
 import { SITE } from "@/lib/site";
 
@@ -13,8 +13,8 @@ export async function generateMetadata({ params }) {
   const project = getCaseStudy(slug);
   if (!project) return {};
 
-  const title = `${project.title} ${project.tag} Case Study`;
-  const description = `${project.description} A web development case study by ${SITE.name}.`;
+  const title = `${project.title.replace(/ — .*/, "")} — ${project.tag} Case Study`;
+  const description = `${project.description} A case study by ${SITE.name}.`;
 
   return {
     title,
@@ -51,7 +51,7 @@ export default async function CaseStudyPage({ params }) {
     <>
       <StructuredData project={project} />
       <CaseStudyTemplate project={project} />
-      <FooterSimple />
+      <Footer />
     </>
   );
 }

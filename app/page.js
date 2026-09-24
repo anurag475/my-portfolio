@@ -1,23 +1,15 @@
 import Hero from "@/components/sections/Hero";
-import TrustSection from "@/components/sections/TrustSection";
-import FeaturedWork from "@/components/sections/FeaturedWork";
-import MacbookScrollDemo from "@/components/sections/MacbookScrollDemo";
-import ServicesSection from "@/components/sections/ServicesSection";
-import WhyWorkWithMe from "@/components/sections/WhyWorkWithMe";
-import ProcessSection from "@/components/sections/ProcessSection";
-import PricingSection from "@/components/sections/PricingSection";
-import AuditSection from "@/components/sections/AuditSection";
-import TestimonialsSection from "@/components/sections/TestimonialsSection";
-import AboutSection from "@/components/sections/AboutSection";
-import TechStackSection from "@/components/sections/TechStackSection";
-import SocialSection from "@/components/sections/SocialSection";
-import OrganizationsSection from "@/components/sections/OrganizationsSection";
-import FAQSection from "@/components/sections/FAQSection";
-import FinalCTA from "@/components/sections/FinalCTA";
-import ContactSection from "@/components/sections/ContactSection";
+import Credibility from "@/components/sections/Credibility";
+import Work from "@/components/sections/Work";
+import Services from "@/components/sections/Services";
+import About from "@/components/sections/About";
+import Experience from "@/components/sections/Experience";
+import Skills from "@/components/sections/Skills";
+import Testimonials from "@/components/sections/Testimonials";
+import Contact from "@/components/sections/Contact";
 import Footer from "@/components/Footer";
 import { SITE } from "@/lib/site";
-import { faqs } from "@/lib/faqs";
+import { skills } from "@/lib/content";
 
 export const metadata = {
   alternates: { canonical: "/" },
@@ -28,45 +20,35 @@ function StructuredData() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": "ProfessionalService",
-        "@id": `${SITE.url}/#business`,
-        name: `${SITE.name} — Web Developer`,
-        image: `${SITE.url}${SITE.ogImage}`,
-        url: `${SITE.url}/`,
-        telephone: SITE.phoneE164,
-        email: SITE.email,
-        priceRange: "₹₹",
-        areaServed: { "@type": "Country", name: "India" },
-        address: { "@type": "PostalAddress", addressCountry: "IN" },
-        founder: { "@id": `${SITE.url}/#person` },
-        sameAs: [],
-      },
-      {
         "@type": "Person",
         "@id": `${SITE.url}/#person`,
         name: SITE.name,
-        jobTitle: "Freelance Software Developer",
+        jobTitle: "Software Developer & Founder",
+        url: `${SITE.url}/`,
+        email: `mailto:${SITE.email}`,
+        image: `${SITE.url}/img/me/portrait-812.webp`,
+        alumniOf: { "@type": "CollegeOrUniversity", name: "Kurukshetra University" },
+        knowsAbout: skills.flatMap((g) => g.items).slice(0, 20),
+        sameAs: Object.values(SITE.social),
+      },
+      {
+        "@type": "ProfessionalService",
+        "@id": `${SITE.url}/#service`,
+        name: `${SITE.name} — Software Development`,
         url: `${SITE.url}/`,
         email: SITE.email,
-        worksFor: { "@id": `${SITE.url}/#business` },
-        knowsAbout: ["Web Development", "UI/UX Design", "Website Performance", "SEO", "E-commerce Development"],
+        telephone: SITE.phoneE164,
+        areaServed: "Worldwide",
+        address: { "@type": "PostalAddress", addressCountry: "IN" },
+        founder: { "@id": `${SITE.url}/#person` },
       },
       {
         "@type": "WebSite",
         "@id": `${SITE.url}/#website`,
         url: `${SITE.url}/`,
-        name: `${SITE.name} — Web Developer`,
-        publisher: { "@id": `${SITE.url}/#business` },
+        name: SITE.name,
+        publisher: { "@id": `${SITE.url}/#person` },
         inLanguage: "en-IN",
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${SITE.url}/#faq`,
-        mainEntity: faqs.map((f) => ({
-          "@type": "Question",
-          name: f.q,
-          acceptedAnswer: { "@type": "Answer", text: f.a },
-        })),
       },
     ],
   };
@@ -78,22 +60,14 @@ export default function HomePage() {
     <>
       <StructuredData />
       <Hero />
-      <TrustSection />
-      <FeaturedWork />
-      <MacbookScrollDemo />
-      <ServicesSection />
-      <WhyWorkWithMe />
-      <ProcessSection />
-      <PricingSection />
-      <AuditSection />
-      <TestimonialsSection />
-      <AboutSection />
-      <TechStackSection />
-      <SocialSection />
-      <OrganizationsSection />
-      <FAQSection />
-      <FinalCTA />
-      <ContactSection />
+      <Credibility />
+      <Work />
+      <Services />
+      <About />
+      <Experience />
+      <Skills />
+      <Testimonials />
+      <Contact />
       <Footer />
     </>
   );

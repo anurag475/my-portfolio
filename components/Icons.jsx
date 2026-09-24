@@ -354,7 +354,37 @@ export function GitHub(props) {
   );
 }
 
+export function ArrowUpRight(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...strokeProps} aria-hidden="true" {...props}>
+      <line x1="7" y1="17" x2="17" y2="7" />
+      <polyline points="8 7 17 7 17 16" />
+    </svg>
+  );
+}
+
+export function Layers(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...strokeProps} aria-hidden="true" {...props}>
+      <polygon points="12 2 2 7 12 12 22 7 12 2" />
+      <polyline points="2 17 12 22 22 17" />
+      <polyline points="2 12 12 17 22 12" />
+    </svg>
+  );
+}
+
+export function Copy(props) {
+  return (
+    <svg viewBox="0 0 24 24" {...strokeProps} aria-hidden="true" {...props}>
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </svg>
+  );
+}
+
 const ICONS = {
+  Layers,
+  ArrowUpRight,
   Briefcase,
   Layout,
   Cart,

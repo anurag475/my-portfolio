@@ -1,82 +1,76 @@
-import { Fraunces, Inter, Caveat } from "next/font/google";
+import { Geist, Instrument_Sans, Instrument_Serif } from "next/font/google";
 import "./globals.css";
-import "./tailwind.css";
 import SiteNav from "@/components/SiteNav";
-import WhatsAppFab from "@/components/WhatsAppFab";
-import EngagementModal from "@/components/EngagementModal";
+import Motion from "@/components/Motion";
 import { SITE } from "@/lib/site";
 
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
-  // Italic added for the mobile hero's "look good," phrase (see
-  // .grad-word-italic in app/globals.css) — normal-weight Fraunces was
-  // already covering every other use, so this just adds the one style.
-  style: ["normal", "italic"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
+// Body/UI text.
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-inter",
-  display: "swap",
-});
+// Headings.
+const instrumentSans = Instrument_Sans({ subsets: ["latin"], variable: "--font-display", display: "swap" });
 
-// Handwriting-style display font — used only for the signature/quote
-// callouts over the mobile hero photo (see .hero-signature/.hero-quote in
-// app/globals.css, MOBILE HOMEPAGE REDESIGN section).
-const caveat = Caveat({
+// Editorial italic accent — used only on the <em> phrase inside headings.
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--font-caveat",
+  weight: "400",
+  style: "italic",
+  variable: "--font-serif",
   display: "swap",
 });
 
 export const metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} | Freelance Web Developer & Website Designer in India`,
+    default: `${SITE.name} — Software Developer, AI/ML Engineer & Product Builder`,
     template: `%s | ${SITE.name}`,
   },
   description:
-    "Freelance web developer building fast, modern, conversion-focused websites for businesses, startups, NGOs and restaurants across India. Affordable website development that turns visitors into customers.",
+    "Anurag Dutta builds digital products that turn ideas into real businesses — high-performance websites, web and mobile apps, AI/ML solutions and SaaS products for clients across India and beyond.",
   keywords: [
-    "freelance web developer",
-    "website developer",
-    "website development",
-    "business website development",
-    "website designer",
-    "affordable website development",
-    "website developer India",
-    "business website designer",
+    "Anurag Dutta",
+    "software developer",
+    "freelance developer India",
+    "AI ML developer",
+    "Next.js developer",
+    "web application development",
+    "mobile app development",
+    "product builder",
   ],
-  authors: [{ name: SITE.name }],
+  authors: [{ name: SITE.name, url: SITE.url }],
+  creator: SITE.name,
   openGraph: {
     type: "website",
-    siteName: `${SITE.name} — Web Developer`,
+    siteName: SITE.name,
     url: SITE.url,
-    images: [{ url: SITE.ogImage, width: 1200, height: 630 }],
     locale: "en_IN",
   },
-  twitter: {
-    card: "summary_large_image",
-    images: [SITE.ogImage],
-  },
+  twitter: { card: "summary_large_image" },
 };
+
+export const viewport = {
+  themeColor: "#F6F3EC",
+};
+
+// Runs before first paint: opts the page into scroll-reveal styles only
+// when motion is allowed, so content is never hidden without JS.
+const motionScript = `try{if(!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window)document.documentElement.classList.add('motion-ready')}catch(e){}`;
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${inter.variable} ${caveat.variable}`}>
+    <html
+      lang="en"
+      className={`${geist.variable} ${instrumentSans.variable} ${instrumentSerif.variable}`}
+      suppressHydrationWarning
+    >
       <body>
+        <script dangerouslySetInnerHTML={{ __html: motionScript }} />
         <a className="skip-link" href="#main">
-          Skip to main content
+          Skip to content
         </a>
         <SiteNav />
         <main id="main">{children}</main>
-        <WhatsAppFab />
-        <EngagementModal />
+        <Motion />
       </body>
     </html>
   );

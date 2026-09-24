@@ -1,70 +1,71 @@
 import Link from "next/link";
 import { SITE } from "@/lib/site";
 import { services } from "@/lib/services";
-import { LinkedIn, Instagram, GitHub } from "./Icons";
+import { socialLinks } from "@/lib/content";
+import { orderedCaseStudies } from "@/lib/caseStudies";
+import { DynamicIcon } from "./Icons";
 import CurrentYear from "./CurrentYear";
-import Avatar from "./Avatar";
+import Img from "./Img";
 
-/** Full footer with sitemap columns — used on the homepage. */
 export default function Footer() {
   return (
-    <footer>
+    <footer className="footer">
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <Link href="/" className="brand" style={{ color: "#fff" }}>
-              <Avatar size={36} />
-              {SITE.name}
+            <Link href="/" className="footer-logo" aria-label={`${SITE.name} — home`}>
+              <Img name="brand/ad-lockup-light" alt={SITE.name} sizes="220px" />
             </Link>
-            <p>Freelance web developer building fast, modern, conversion-focused websites for businesses and organizations across India.</p>
-            <div className="footer-social" style={{ marginTop: "1.2rem" }}>
-              <a href={SITE.social.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile">
-                <LinkedIn />
-              </a>
-              <a href={SITE.social.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram profile">
-                <Instagram />
-              </a>
-              <a href={SITE.social.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub profile">
-                <GitHub />
-              </a>
-            </div>
-          </div>
-          <div>
-            <h5>Sitemap</h5>
-            <ul>
-              <li><Link href="/#home">Home</Link></li>
-              <li><Link href="/#work">Work</Link></li>
-              <li><Link href="/#services">Services</Link></li>
-              <li><Link href="/#process">Process</Link></li>
-              <li><Link href="/#about">About</Link></li>
-              <li><Link href="/#contact">Contact</Link></li>
+            <p>Software developer, AI/ML engineer and founder building digital products for real businesses.</p>
+            <ul className="footer-social">
+              {socialLinks.map((s) => (
+                <li key={s.label}>
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.label}>
+                    <DynamicIcon name={s.icon} />
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
-          <div>
-            <h5>Services</h5>
+          <nav aria-label="Footer — site">
+            <h2>Site</h2>
             <ul>
-              {services.map((s) => (
+              <li><Link href="/#work">Work</Link></li>
+              <li><Link href="/#services">Services</Link></li>
+              <li><Link href="/#about">About</Link></li>
+              <li><Link href="/#experience">Experience</Link></li>
+              <li><Link href="/#skills">Skills</Link></li>
+              <li><Link href="/#contact">Contact</Link></li>
+            </ul>
+          </nav>
+          <nav aria-label="Footer — case studies">
+            <h2>Case studies</h2>
+            <ul>
+              {orderedCaseStudies
+                .filter((c) => c.featured)
+                .map((c) => (
+                  <li key={c.slug}>
+                    <Link href={`/work/${c.slug}`}>{c.title.replace(/ — .*/, "")}</Link>
+                  </li>
+                ))}
+            </ul>
+          </nav>
+          <nav aria-label="Footer — services">
+            <h2>Services</h2>
+            <ul>
+              {services.slice(0, 7).map((s) => (
                 <li key={s.slug}>
                   <Link href={`/services/${s.slug}`}>{s.title}</Link>
                 </li>
               ))}
             </ul>
-          </div>
-          <div>
-            <h5>More</h5>
-            <ul>
-              <li><Link href="/#work">Case Studies</Link></li>
-              <li><Link href="/#pricing">Pricing</Link></li>
-              <li><Link href="/#audit">Free Website Audit</Link></li>
-              <li><Link href="/#faq">FAQ</Link></li>
-            </ul>
-          </div>
+          </nav>
         </div>
         <div className="footer-bottom">
           <p>
-            © <CurrentYear /> {SITE.name}. All rights reserved.
+            © <CurrentYear /> {SITE.name}
           </p>
-          <p>Designed &amp; built with care in India.</p>
+          <p>Designed &amp; built in India.</p>
         </div>
       </div>
     </footer>

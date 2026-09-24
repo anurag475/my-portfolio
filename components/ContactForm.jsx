@@ -1,66 +1,92 @@
-import LeadForm from "./LeadForm";
+"use client";
 
+import { useState } from "react";
+import { SITE } from "@/lib/site";
+import { ArrowRight, Check } from "./Icons";
+
+const TYPES = ["Website", "Web application", "Mobile app", "AI / ML solution", "SaaS / product", "E-commerce", "Something else"];
+
+/**
+ * Project enquiry form. Posts to Netlify Forms (the hidden `form-name`
+ * field lets Netlify detect it in the static HTML at deploy time — see
+ * README). Only shows success when the POST actually succeeds; otherwise it
+ * says so and points to email, so no enquiry silently disappears.
+ */
 export default function ContactForm() {
+  const [state, setState] = useState("idle"); // idle | sending | sent | error
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    if (form.elements._gotcha.value) return;
+    setState("sending");
+    try {
+      const res = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(new FormData(form)).toString(),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      form.reset();
+      setState("sent");
+    } catch {
+      setState("error");
+    }
+  }
+
+  if (state === "sent") {
+    return (
+      <div className="form-done" role="status">
+        <span className="form-done-icon">
+          <Check />
+        </span>
+        <h3>Thanks — message received.</h3>
+        <p>I&rsquo;ll reply within one business day.</p>
+      </div>
+    );
+  }
+
   return (
-    <LeadForm
-      formName="project-enquiry"
-      action="/project-enquiry"
-      submitLabel="Send Project Enquiry →"
-      successTitle="Thanks — enquiry received!"
-      successBody="I'll get back to you within one business day. For a faster response, feel free to"
-    >
-      <div className="form-grid-2">
+    <form name="project-enquiry" method="POST" data-netlify="true" netlify-honeypot="_gotcha" onSubmit={onSubmit} className="cform">
+      <input type="hidden" name="form-name" value="project-enquiry" />
+      <p className="sr-only">
+        <label>
+          Leave this empty <input name="_gotcha" tabIndex={-1} autoComplete="off" />
+        </label>
+      </p>
+      <div className="cform-row">
         <div className="field">
-          <label htmlFor="c-name">Name</label>
-          <input id="c-name" name="name" type="text" required autoComplete="name" />
+          <label htmlFor="cf-name">Name</label>
+          <input id="cf-name" name="name" required autoComplete="name" />
         </div>
         <div className="field">
-          <label htmlFor="c-email">Email</label>
-          <input id="c-email" name="email" type="email" required autoComplete="email" />
-        </div>
-      </div>
-      <div className="form-grid-2">
-        <div className="field">
-          <label htmlFor="c-whatsapp">WhatsApp</label>
-          <input id="c-whatsapp" name="whatsapp" type="tel" required autoComplete="tel" />
-        </div>
-        <div className="field">
-          <label htmlFor="c-business">Business name</label>
-          <input id="c-business" name="business" type="text" autoComplete="organization" />
+          <label htmlFor="cf-email">Email</label>
+          <input id="cf-email" name="email" type="email" required autoComplete="email" />
         </div>
       </div>
-      <div className="form-grid-2">
-        <div className="field">
-          <label htmlFor="c-type">Project type</label>
-          <select id="c-type" name="project_type" required defaultValue="">
-            <option value="" disabled>
-              Select one
-            </option>
-            <option>Business Website</option>
-            <option>Landing Page</option>
-            <option>E-commerce Website</option>
-            <option>NGO / Organization Website</option>
-            <option>Website Redesign</option>
-            <option>Maintenance &amp; Support</option>
-            <option>Something else</option>
-          </select>
+      <fieldset className="field">
+        <legend>What are you building?</legend>
+        <div className="type-pills">
+          {TYPES.map((t, i) => (
+            <label key={t}>
+              <input type="radio" name="project_type" value={t} defaultChecked={i === 0} />
+              <span>{t}</span>
+            </label>
+          ))}
         </div>
-        <div className="field">
-          <label htmlFor="c-budget">Budget</label>
-          <select id="c-budget" name="budget" defaultValue="">
-            <option value="">Select a range</option>
-            <option>Under ₹10,000</option>
-            <option>₹10,000 – ₹20,000</option>
-            <option>₹20,000 – ₹35,000</option>
-            <option>₹35,000+</option>
-            <option>Not sure yet</option>
-          </select>
-        </div>
-      </div>
+      </fieldset>
       <div className="field">
-        <label htmlFor="c-message">Message</label>
-        <textarea id="c-message" name="message" placeholder="Tell me a bit about your business and what you're looking for…" />
+        <label htmlFor="cf-message">Project details</label>
+        <textarea id="cf-message" name="message" rows={4} required placeholder="What's the idea, who's it for, and when do you need it?" />
       </div>
-    </LeadForm>
+      <button type="submit" className="btn btn-gold btn-lg btn-block" disabled={state === "sending"}>
+        {state === "sending" ? "Sending…" : "Send enquiry"} <ArrowRight />
+      </button>
+      {state === "error" && (
+        <p className="form-error" role="alert">
+          That didn&rsquo;t go through. Please email me directly at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+        </p>
+      )}
+    </form>
   );
 }
